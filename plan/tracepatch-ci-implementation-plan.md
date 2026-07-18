@@ -1369,3 +1369,151 @@ TracePatch CI is ready to submit when a fresh user can:
 10. receive a clear pass/fail Markdown report with evidence;
 11. repeat the entire path without manual data repair or external side effects.
 
+---
+
+## 26. Three-phase incremental delivery strategy
+
+The detailed implementation phases above are grouped into three delivery gates. Each gate must produce a working artifact, and the next phase begins only after its automated tests and acceptance criteria pass.
+
+### Test-driven development rule for all phases
+
+Use the same loop for every behavior:
+
+1. **Red:** write a failing unit, integration, or end-to-end test that describes the required behavior.
+2. **Green:** implement the smallest change that makes the test pass.
+3. **Verify:** run the focused test and the relevant regression suite.
+4. **Refactor:** improve structure while keeping behavior unchanged and tests green.
+5. **Record:** update documentation and `jornal.md`; commit only a verified green state.
+
+Tests must be deterministic wherever they control a CI conclusion. Model-dependent behavior should be isolated behind validated structured outputs and tested with fixtures or fakes where appropriate.
+
+### Phase 1 - MVP proof of concept
+
+**Objective:** prove the core TracePatch idea through one complete high-value-refund scenario with the minimum usable interface.
+
+**Estimated effort:** 8 focused hours.
+
+#### Main implementation steps
+
+1. Scaffold the TypeScript application, Vitest, Zod schemas, SQLite or an in-memory repository, fixture directories, and seed command.
+2. Define the canonical trace, agent-version, scenario, assertion, and replay contracts.
+3. Create one seeded customer-support agent with mocked order lookup, refund preview, approval, and refund tools.
+4. Create one unsafe trace in which an ₹18,000 refund executes without approval.
+5. Implement trace validation, minimal redaction, and the authorization detector.
+6. Implement deterministic `requires_approval` and `event_precedes` assertions.
+7. Compile the failed trace into an independently runnable regression scenario.
+8. Run the broken and safe/candidate agent versions against identical mocked tools.
+9. Display a minimal trace timeline and original-versus-candidate result.
+
+#### Tests written before implementation
+
+- Reject malformed trace spans and missing identifiers.
+- Detect a protected tool call without a matching approval.
+- Accept a protected tool call when the correct approval precedes it.
+- Reject approval bound to different arguments or a different protected action.
+- Prove that the broken agent fails and the safe candidate passes the same scenario.
+- Verify that the replay runner cannot call an unregistered or live external tool.
+- Complete one end-to-end test from seeded trace selection through replay result.
+
+#### MVP phase gate
+
+Phase 1 is complete only when:
+
+- the unsafe refund can be reproduced from a clean seed;
+- the failure is linked to a concrete trace span and policy invariant;
+- the generated scenario runs without the source trace;
+- the original version fails and candidate version passes deterministically;
+- no external state-changing action can occur;
+- unit, integration, type-check, and lint commands pass;
+- the proof of concept can be demonstrated end to end without manual data repair.
+
+### Phase 2 - enhanced working product
+
+**Objective:** turn the proof of concept into a credible developer tool with broader failure coverage, bounded AI assistance, CI comparison, and a coherent user experience.
+
+**Estimated effort:** 9 focused hours.
+
+#### Main implementation steps
+
+1. Add tool-contract and trajectory detectors alongside authorization detection.
+2. Add the other two seeded incidents: invalid refund arguments and approval-bypass/trajectory behavior.
+3. Implement GPT-5.6 structured diagnosis with evidence-span validation and deterministic fallback output.
+4. Implement editable scenario compilation, provenance, export, re-import, and the persistent scenario registry.
+5. Implement bounded patch proposals for instructions, policy rules, and tool schemas.
+6. Enforce patch path allowlists and prohibit changes to scenario assertions.
+7. Add the explicit human approval gate and isolated candidate-version creation.
+8. Implement base-versus-candidate CI selection, replay, classification, and Markdown/JSON reports.
+9. Complete the dashboard, trace timeline, diagnosis, generated-test, patch-review, replay-comparison, and CI-result screens.
+10. Add redaction, audit records, API error handling, inconclusive results, and stable fallback artifacts.
+
+#### Tests written before implementation
+
+- Detector matrix covering all three failure categories and boundary cases.
+- JSON Schema and tool-order contract tests.
+- Repeated-call, maximum-step, premature-completion, and terminal-status tests.
+- Diagnosis rejection for unknown evidence span IDs.
+- Scenario export/re-import and content-hash tests.
+- Patch traversal, non-allowlisted target, policy weakening, and test-mutation rejection tests.
+- Human approval required before candidate creation.
+- CI classification truth table: unchanged pass, fixed, regressed, and unchanged fail.
+- Model timeout and malformed-output fallback tests.
+- Integration tests covering both the incident-repair and CI workflows.
+
+#### Phase 2 gate
+
+Phase 2 is complete only when:
+
+- all three seeded incidents are classified correctly;
+- every diagnosis cites valid trace evidence;
+- scenarios export and re-import without behavioral change;
+- an approved bounded patch creates an isolated candidate;
+- a newly introduced blocking regression fails CI;
+- an existing base failure is not mislabeled as a new regression;
+- infrastructure/model failures are reported as inconclusive;
+- the full automated suite passes and the MVP path remains green.
+
+### Phase 3 - release, recording, and submission
+
+**Objective:** freeze product scope, harden reliability, verify the judge experience, capture evidence, record the demonstration, and submit the project.
+
+**Estimated effort:** 5 focused hours plus a 2-4 hour contingency buffer.
+
+#### Main finalization steps
+
+1. Freeze discretionary feature work; fix defects and reliability problems only.
+2. Complete loading, empty, timeout, retry, malformed-input, and inconclusive states.
+3. Run the full unit, integration, end-to-end, type-check, lint, and build suite.
+4. Test installation and seed commands from a clean clone or clean working directory.
+5. Perform keyboard-accessibility, responsive-layout, redaction, path-safety, and no-side-effect reviews.
+6. Run the complete hero demo at least twice consecutively without manual correction.
+7. Prepare fallback trace, replay, CI-report, and screenshot artifacts for recording resilience.
+8. Complete README setup instructions, architecture, supported platforms, testing path, limitations, and explanation of Codex/GPT-5.6 contributions.
+9. Deploy the demo or provide a reliable one-command local judge experience.
+10. Record and publish the public, audible, under-three-minute YouTube demonstration.
+11. Verify repository access, video visibility, demo access, license, credentials where required, and the `/feedback` Codex Session ID.
+12. Submit and verify every Devpost field before the deadline.
+
+#### Final release tests
+
+- Clean-clone install, seed, build, test, and run.
+- Two consecutive end-to-end demo rehearsals.
+- Primary workflow tested at supported desktop width and narrow/mobile width.
+- Keyboard navigation and visible focus through all interactive controls.
+- Secret and personal-data scan of traces, logs, screenshots, and committed artifacts.
+- Verification that every replay tool is mocked and every patch path is allowlisted.
+- Link and permission checks for repository, hosted demo, and YouTube video.
+
+#### Submission gate
+
+The project is ready to submit only when:
+
+- the primary demo completes reliably from a clean state;
+- all required automated checks pass;
+- a judge can follow the documented setup without project-specific knowledge;
+- the video is public, audible, under three minutes, and shows the working product;
+- the README clearly distinguishes Codex collaboration, GPT-5.6 runtime behavior, deterministic safety controls, and human decisions;
+- the repository, demo, video, and session identifiers are entered and verified.
+
+### Delivery rule when time is constrained
+
+Do not start Phase 2 until the Phase 1 gate passes. Do not add features during Phase 3. If the deadline prevents Phase 2 completion, submit a polished, tested Phase 1 proof of concept with explicit limitations rather than an unstable partial feature set.

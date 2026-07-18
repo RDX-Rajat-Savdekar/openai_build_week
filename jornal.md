@@ -106,6 +106,60 @@ This file is the chronological record of major product decisions, implementation
 - Created `jornal.md`.
 - Updated `AGENTS.md` with the journal-maintenance protocol.
 
+## 2026-07-19 - TracePatch CI project dashboard created
+
+### Decision and design update
+
+- Created a visual HTML dashboard that translates the detailed implementation plan into six navigable sections: overview, workflow, architecture, build plan, design decisions, and scope/demo.
+- Kept the current status explicit: product planning is complete and application implementation has not started.
+- Estimated the hackathon MVP at 22 focused implementation hours plus a 2-4 hour contingency buffer.
+- Preserved the existing technical decisions: one TypeScript application, canonical JSON trace input, GPT-5.6 for semantic analysis, deterministic assertions for blocking CI, mocked replay tools, human-approved bounded patches, SQLite plus versioned scenarios, and local CI before GitHub integration.
+
+### Repository update
+
+- Created `plan/tracepatch-project-dashboard.html` as a standalone interactive webpage.
+- The page includes the incident-repair loop, pull-request CI loop, layered system architecture, main steps for every product section, phase-by-phase status, effort estimates, explicit design justifications, P0 scope, exclusions, and the three-minute demo arc.
+
+### Verification
+
+- Rendered and opened the standalone page in a headless browser.
+- Confirmed all six section controls and six content panels are present.
+- Confirmed the primary section interaction switches to the architecture view.
+- Checked the 736-pixel target layout and found no horizontal overflow.
+- Captured a visual preview and reviewed the rendered architecture/status view.
+
+## 2026-07-19 - Three-phase incremental delivery strategy adopted
+
+### Decision
+
+- Reorganized implementation into three gated delivery phases:
+  1. **MVP proof of concept:** one complete unsafe-refund path proving trace-to-test-to-replay behavior.
+  2. **Enhanced working product:** three failure categories, GPT-5.6 diagnosis and bounded repair, scenario registry, CI comparison, safety controls, and complete product screens.
+  3. **Release and submission:** feature freeze, final testing, clean-install validation, documentation, deployment/judge path, recording, and Devpost submission.
+- Adopted test-driven development for all phases using the red, green, verify, refactor, and record loop.
+- Defined a hard gate between phases. Work must not advance until the current phase's automated tests and acceptance criteria pass.
+- If time becomes constrained, the team should submit a polished, tested MVP rather than an unstable partial second phase.
+
+### Timeline
+
+- Phase 1 MVP: 8 focused hours.
+- Phase 2 enhanced product: 9 focused hours.
+- Phase 3 release/submission: 5 focused hours.
+- Contingency: 2-4 hours.
+- Total estimate remains 22 focused implementation hours plus contingency.
+
+### Repository updates
+
+- Added the three-phase strategy, tests, gates, final validation, and time-constrained delivery rule to `plan/tracepatch-ci-implementation-plan.md`.
+- Updated `plan/tracepatch-project-dashboard.html` with an interactive **3-phase roadmap** section.
+
+### Verification
+
+- Confirmed the dashboard contains exactly three delivery-phase sections.
+- Confirmed the roadmap navigation opens the updated section.
+- Checked the rendered 736-pixel layout and found no horizontal overflow.
+- Visually reviewed all three phases, the TDD loop, time allocation, and incremental delivery rule.
+
 ## Push log
 
 No repository push has been performed or verified in this project journal yet.
