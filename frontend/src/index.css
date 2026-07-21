@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg: #f9f9f7;
+  --panel: #ffffff;
+  --panel-2: #fbfbfa;
+  --border: #e6e5e0;
+  --text: #0b0b0b;
+  --text-2: #52514e;
+  --muted: #898781;
+  --accent: #4a3aa7;
+  --accent-2: #6153e0;
+  --accent-soft: #efecfb;
+  --good: #0f8f4f;
+  --good-soft: #e3f5eb;
+  --warn: #a8710a;
+  --warn-soft: #faf1de;
+  --critical: #c0392b;
+  --critical-soft: #fbe9e7;
+  --blue: #2a78d6;
+  --blue-soft: #e8f1fc;
+  --code-bg: #f3f2ee;
+  --code-add: #e4f5e9;
+  --code-add-text: #0f7a3d;
+  --code-del: #fbe9e8;
+  --code-del-text: #b0392b;
+  --shadow: 0 1px 2px rgba(20, 20, 20, 0.04), 0 8px 24px rgba(20, 20, 20, 0.05);
+  --sidebar-w: 236px;
+  --topbar-h: 60px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0c0d0f;
+    --panel: #16171c;
+    --panel-2: #131418;
+    --border: #2a2b31;
+    --text: #f3f3f2;
+    --text-2: #c3c2b7;
+    --muted: #8b8d97;
+    --accent: #9085e9;
+    --accent-2: #a89bff;
+    --accent-soft: #221f38;
+    --good: #35c087;
+    --good-soft: #12271e;
+    --warn: #e3ac52;
+    --warn-soft: #2a2213;
+    --critical: #ff6b6b;
+    --critical-soft: #2c1817;
+    --blue: #5b9bef;
+    --blue-soft: #142236;
+    --code-bg: #1c1d22;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0c0d0f;
+  --panel: #16171c;
+  --panel-2: #131418;
+  --border: #2a2b31;
+  --text: #f3f3f2;
+  --text-2: #c3c2b7;
+  --muted: #8b8d97;
+  --accent: #9085e9;
+  --accent-2: #a89bff;
+  --accent-soft: #221f38;
+  --good: #35c087;
+  --good-soft: #12271e;
+  --warn: #e3ac52;
+  --warn-soft: #2a2213;
+  --critical: #ff6b6b;
+  --critical-soft: #2c1817;
+  --blue: #5b9bef;
+  --blue-soft: #142236;
+  --code-bg: #1c1d22;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  html,
+  body,
+  #root {
+    @apply h-full;
+  }
+  html {
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+  }
+  body {
+    @apply m-0 bg-bg text-text font-sans antialiased text-sm leading-relaxed;
+    overflow-x: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  .page-shell {
+    @apply animate-fade-in;
+  }
+  .hover-lift {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-stitch;
+  }
+  .marketing-gradient-text {
+    @apply bg-gradient-to-br from-text via-text to-accent bg-clip-text text-transparent;
+  }
+  .hero-brand-name {
+    @apply text-5xl font-extrabold tracking-[-0.04em] md:text-7xl;
+    background: linear-gradient(120deg, var(--text) 0%, var(--accent) 48%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-tagline-gradient {
+    @apply text-3xl font-bold tracking-tight md:text-5xl md:leading-[1.12];
+    background: linear-gradient(
+      115deg,
+      var(--text) 0%,
+      color-mix(in srgb, var(--text) 70%, var(--accent)) 35%,
+      var(--accent) 62%,
+      var(--accent-2) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}

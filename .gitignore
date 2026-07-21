@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+ex-idea
+# Ignore media scratch work but keep exported brand assets for the product UI
+media/**
+!media/exports/
+!media/exports/png/
+!media/exports/png/**
+!media/exports/favicon/
+!media/exports/favicon/**
+!media/exports/README.md
+testrepo/node_modules//
+.claude/
+testrepo/
