@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// One organization = one tenant. Everything else hangs off organizationId.
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  plan        String   @default("Team")
+  apiKeyHash  String?
+  apiKeyPreview String?
+  preferences Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  users         User[]
+  projects      Project[]
+  repos         Repo[]
+  fixes         Fix[]
+  auditEntries  AuditEntry[]
+  aiUsage       AiUsage?
+  integrations  Integration[]
+  notifications NotificationChannelConfig[]
+  invites       Invite[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  passwordHash   String?
+  name           String
+  role           String       @default("Admin")
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sessions       Session[]
+  createdAt      DateTime     @default(now())
+
+  /// GitHub OAuth login — plaintext access token, same documented tradeoff as
+  /// Integration.config (see plan section 8.10/8.11). Non-expiring OAuth App
+  /// tokens are assumed; no refresh-token handling.
+  githubId          String? @unique
+  githubUsername    String?
+  githubAccessToken String?
+}
+
+/// Real, email-free invite mechanism for Settings -> Team & access: an admin
+/// generates a link (this row + a random token), shares it manually, and
+/// whoever opens it joins THIS organization on signup instead of creating a
+/// new one. No email-sending infra required — the link itself is the invite.
+model Invite {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  token          String       @unique
+  email          String?
+  role           String       @default("Developer")
+  invitedBy      String
+  createdAt      DateTime     @default(now())
+  expiresAt      DateTime
+  usedAt         DateTime?
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  slug           String
+  description    String       @default("")
+  defaultMode    String       @default("Diagnose & suggest")
+  createdAt      DateTime     @default(now())
+  repos          Repo[]
+
+  @@unique([organizationId, slug])
+}
+
+model Repo {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId      String
+  project        Project      @relation(fields: [projectId], references: [id])
+  fullName       String
+  provider       String
+  mode           String
+  policy         String       @default("Default")
+  enabled        Boolean      @default(true)
+  fixes          Fix[]
+
+  @@unique([organizationId, fullName])
+}
+
+model Fix {
+  id             Int          @id @default(autoincrement())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  repoId         String?
+  repo           Repo?        @relation(fields: [repoId], references: [id])
+  repoName       String
+  branch         String
+  author         String       @default("@stitch")
+  confidence     Int
+  outcome        String
+  mode           String
+  rootCause      String
+  files          String[]     @default([])
+  diffText       String       @default("")
+  outcomeText    String
+  ticket         String?
+  prUrl          String?
+  createdAt      DateTime     @default(now())
+
+  issue IssueRecord?
+}
+
+model IssueRecord {
+  id         Int      @id @default(autoincrement())
+  fixId      Int      @unique
+  fix        Fix      @relation(fields: [fixId], references: [id], onDelete: Cascade)
+  slug       String
+  path       String
+  repoLabel  String
+  branch     String
+  title      String
+  status     String
+  confidence Int
+  ticketId   String?
+  summary    String
+  diagnosis  String
+  markdown   String
+  createdAt  DateTime @default(now())
+}
+
+/// fixId is a loose pointer, not a real foreign key — pipeline-level events
+/// (webhook received, logs fetched) are logged before a Fix row exists yet,
+/// using fixId=0 as a sentinel, which would violate real FK referential
+/// integrity. No @relation on purpose; joins are done manually where needed.
+model AuditEntry {
+  id             Int          @id @default(autoincrement())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  fixId          Int
+  at             DateTime     @default(now())
+  action         String
+  actor          String
+  outcome        String
+}
+
+model AiUsage {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  budget         Float        @default(75)
+  spent          Float        @default(0)
+  gptCalls       Int          @default(0)
+  gptCost        Float        @default(0)
+  codexCalls     Int          @default(0)
+  codexCost      Float        @default(0)
+}
+
+/// CI/CD provider connections (GitHub, GitLab, CircleCI, Jenkins, Bitbucket).
+/// `config` holds provider-specific secrets (token, webhookSecret, ...) as JSON.
+model Integration {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  key            String
+  connected      Boolean      @default(false)
+  config         Json         @default("{}")
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, key])
+}
+
+/// Notification channels (Slack, Email). Same shape as Integration, kept as
+/// its own table since the two have different lifecycle events (section 6 vs 5).
+model NotificationChannelConfig {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  key            String
+  enabled        Boolean      @default(false)
+  config         Json         @default("{}")
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, key])
+}
