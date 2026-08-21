@@ -26,7 +26,7 @@
   <a href="#quick-start">Quick Start</a> ·
   <a href="#demo">Demo</a> ·
   <a href="#architecture">Architecture</a> ·
-  <a href="setup.md">Setup Guide</a> ·
+  <a href="setup.md">Setup Guide</a> ·  
   <a href="DEVPOST-SUBMISSION.md">Devpost</a>
 </p>    
 
