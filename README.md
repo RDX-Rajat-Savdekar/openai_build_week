@@ -30,7 +30,7 @@
   <a href="DEVPOST-SUBMISSION.md">Devpost</a>
 </p>    
 
----
+---  
 
 ## Overview
 
